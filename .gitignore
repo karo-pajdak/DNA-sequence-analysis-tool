@@ -1,0 +1,2 @@
+*.fasta #Ignores all FASTA files
+*.fastq #Ignores all FASTQ files
