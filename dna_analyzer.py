@@ -20,7 +20,7 @@ Core Features:
 - FASTA file processing
 - Results export (JSON/CSV)
 
-Usage: update this
+Usage: update this***
     python dna_analyzer.py --sequence ATCGATCG --all
     python dna_analyzer.py --file sequences.fasta --find-orfs
     python dna_analyzer.py --help
@@ -28,6 +28,10 @@ Usage: update this
 Requirements: Python 3.7+, Biopython
 """
 from Bio.Data import CodonTable
+from Bio import SeqIO
+from Bio.Restriction import RestrictionBatch, CommOnly
+import os
+import argparse
 
 def reverse_complement(sequence):
     complement = []
@@ -88,14 +92,59 @@ def find_orfs(sequence):
                 i += 3
     return ORFs
 
+def read_file(filename):
+    extension = os.path.splitext(filename)[1].lower()
+    sequences = []
+    if extension in [".fasta", ".fa", ".fna", ".ffn"]:
+        format_type = "fasta"
+    elif extension in [".fastq", ".fq"]:
+        format_type = "fastq"
+    else:
+        raise ValueError("Unsupported file format.")
+    for record in list(SeqIO.parse(filename, format_type)):
+        sequences.append(str(record.seq))
+    return sequences
 
-def analyze_sequence(sequence):
-    print(f"Reverse Complement: {reverse_complement(sequence)}")
-    print(f"GC Content: {gc_content(sequence)}")
-    print(f"Translated sequence: {translate(sequence)}")
-    print(f"ORFs: {find_orfs(sequence)}")
-    
+##def find_restriction_sites(sequence, restriction_enzymes):
+##   seq = Seq(sequence)
+##   enzymes = RestrictionBatch
+
+
+def main():
+    parser = argparse.ArgumentParser(description="The DNA sequence analysis tool allows users to find the reverse complement, GC content, sequence translation, ORF, and restriction enzymes from either a command line sequence or FASTA or FASTQ file. Results can be exported to CSV.")
+
+    input_group = parser.add_mutually_exclusive_group(required=True)
+    input_group.add_argument('--file', help='Path to input FASTA or FASTQ file.')
+    input_group.add_argument('--sequence', help='DNA sequence string.')
+
+    parser.add_argument('--reverse_complement', action='store_true', help='Get reverse complement')
+    parser.add_argument('--gc_content', action='store_true', help='Get GC content')
+    parser.add_argument('--translate', action='store_true', help='Translate DNA to protein')
+    parser.add_argument('--find_orfs', action='find_ORFs', help="Find open reading frames")
+
+    args = parser.parse_args()
+
+    if args.sequence:
+        sequences = [args.sequence]
+    else:
+        sequences = read_file(args.filename)
+
+    for i, seq in enumerate(sequences):
+        print(f"Sequence: {sequences[i+1]}")
+        if args.reverse_complement:
+            print("Reverse complement: ", reverse_complement(seq))
+        if args.gc_content:
+            print("GC content: ", gc_content(seq))
+        if args.translate:
+            print("Translated sequence: ", translate(seq))
+        if args.find_orfs:
+            orfs = find_orfs(seq)
+            print(f"Found {len(orfs)} ORFs")
+            for j, orf in enumerate(orfs, 1):
+                print(f"ORF {j}: {orf}")
+
 
 if __name__ == "__main__":
-    test_dna = "AGCGTTGATGCAGTGCGTTGGTACGA"
-    analyze_sequence(test_dna)
+    main()
+
+
