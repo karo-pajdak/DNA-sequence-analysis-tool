@@ -12,6 +12,14 @@ This tool performs key DNA analyses like reverse complementing, GC content calcu
 - Restriction enzyme site mapping
 - FASTA file processing
 
+## Folder Structure
+```
+DNA-sequence-analysis-tool/
+├─ dna_analyzer.py # Main Python script for analysis
+├─ README.md # Project documentation and instructions
+└─ .gitignore # Git ignore file to exclude large files (ex: FASTA, FASTQ)
+```
+
 ## Quick Start
 1. Install Biopython
 ```
